@@ -10,7 +10,13 @@ import { Loader2, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { createClient } from '@/lib/supabase/client';
 
@@ -19,7 +25,7 @@ const schema = z
     password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((d) => d.password === d.confirmPassword, {
     message: "Passwords don't match",
     path: ['confirmPassword'],
   });
@@ -41,23 +47,15 @@ export default function ResetPasswordPage() {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     const supabase = createClient();
-
     const { error } = await supabase.auth.updateUser({ password: data.password });
-
     if (error) {
-      toast({
-        title: 'Reset failed',
-        description: error.message,
-        variant: 'destructive',
-      });
+      toast({ title: 'Reset failed', description: error.message, variant: 'destructive' });
       setLoading(false);
       return;
     }
-
     setDone(true);
     setLoading(false);
-
-    setTimeout(() => router.push('/dashboard'), 2500);
+    setTimeout(() => router.push('/dashboard'), 2000);
   };
 
   return (
@@ -94,9 +92,8 @@ export default function ResetPasswordPage() {
                       <p className="text-xs text-destructive">{errors.password.message}</p>
                     )}
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
                     <Input
                       id="confirmPassword"
                       type="password"
@@ -107,13 +104,9 @@ export default function ResetPasswordPage() {
                       <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
                     )}
                   </div>
-
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Updating...
-                      </>
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Updating...</>
                     ) : (
                       'Update Password'
                     )}
@@ -122,10 +115,10 @@ export default function ResetPasswordPage() {
               </CardContent>
             </>
           ) : (
-            <CardContent className="pt-6 pb-6 text-center space-y-4">
+            <CardContent className="py-10 text-center space-y-4">
               <div className="flex justify-center">
-                <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30">
-                  <CheckCircle className="h-8 w-8 text-green-600" />
+                <div className="p-4 rounded-full bg-green-100 dark:bg-green-900/30">
+                  <CheckCircle className="h-10 w-10 text-green-600" />
                 </div>
               </div>
               <div>
