@@ -29,6 +29,7 @@ const navLinks = [
   { href: '/internships', label: 'Internships' },
   { href: '/mentors', label: 'Mentors' },
   { href: '/resources', label: 'Resources' },
+  { href: '/profile', label: 'Profile', icon: User },
   { href: '/ai-assistant', label: 'AI Assistant', icon: Sparkles },
 ];
 
