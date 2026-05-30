@@ -1,8 +1,9 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
+    // 1. Verify the user is authenticated (using the session-aware client)
     const supabase = await createClient();
     const {
       data: { user },
@@ -12,6 +13,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // 2. Validate the uploaded file
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 
@@ -27,9 +29,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File too large (max 5MB)' }, { status: 400 });
     }
 
+    // 3. Upload using the admin (service-role) client to bypass storage RLS
+    const admin = await createAdminClient();
     const fileName = `${user.id}/${Date.now()}-resume.pdf`;
 
-    const { data, error } = await supabase.storage
+    const { data, error } = await admin.storage
       .from('resumes')
       .upload(fileName, file, {
         contentType: 'application/pdf',
@@ -37,17 +41,20 @@ export async function POST(request: NextRequest) {
       });
 
     if (error) {
-      console.error('Upload error:', error);
-      return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+      console.error('Storage upload error:', error);
+      return NextResponse.json(
+        { error: `Upload failed: ${error.message}` },
+        { status: 500 }
+      );
     }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('resumes')
-      .getPublicUrl(data.path);
+    const {
+      data: { publicUrl },
+    } = admin.storage.from('resumes').getPublicUrl(data.path);
 
     return NextResponse.json({ url: publicUrl });
-  } catch (error) {
-    console.error('Upload route error:', error);
+  } catch (err) {
+    console.error('Upload route error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

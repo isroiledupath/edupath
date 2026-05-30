@@ -51,11 +51,13 @@ export function ResumeUploader({ onUpload, currentUrl, className }: ResumeUpload
           body: formData,
         });
 
+        const json = await response.json();
+
         if (!response.ok) {
-          throw new Error('Upload failed');
+          throw new Error(json.error ?? 'Upload failed');
         }
 
-        const { url } = await response.json();
+        const { url } = json;
         setUploadedUrl(url);
         onUpload(url);
 
@@ -63,10 +65,10 @@ export function ResumeUploader({ onUpload, currentUrl, className }: ResumeUpload
           title: 'Resume uploaded',
           description: 'Your resume has been uploaded successfully.',
         });
-      } catch {
+      } catch (err) {
         toast({
           title: 'Upload failed',
-          description: 'Something went wrong. Please try again.',
+          description: err instanceof Error ? err.message : 'Something went wrong. Please try again.',
           variant: 'destructive',
         });
       } finally {
