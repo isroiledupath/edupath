@@ -46,7 +46,7 @@ function OtpInput({
   onChange: (val: string) => void;
 }) {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
-  const digits = value.padEnd(6, '').split('').slice(0, 6);
+  const digits = value.padEnd(8, '').split('').slice(0, 8);
 
   const handleChange = (index: number, char: string) => {
     if (!/^\d*$/.test(char)) return;
@@ -54,7 +54,7 @@ function OtpInput({
     newDigits[index] = char.slice(-1);
     const next = newDigits.join('');
     onChange(next);
-    if (char && index < 5) inputsRef.current[index + 1]?.focus();
+    if (char && index < 7) inputsRef.current[index + 1]?.focus();
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -68,20 +68,20 @@ function OtpInput({
       }
     }
     if (e.key === 'ArrowLeft' && index > 0) inputsRef.current[index - 1]?.focus();
-    if (e.key === 'ArrowRight' && index < 5) inputsRef.current[index + 1]?.focus();
+    if (e.key === 'ArrowRight' && index < 7) inputsRef.current[index + 1]?.focus();
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    onChange(pasted.padEnd(6, '').slice(0, 6));
-    const focusIndex = Math.min(pasted.length, 5);
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 8);
+    onChange(pasted.padEnd(8, '').slice(0, 8));
+    const focusIndex = Math.min(pasted.length, 7);
     inputsRef.current[focusIndex]?.focus();
   };
 
   return (
     <div className="flex gap-2 justify-center">
-      {Array.from({ length: 6 }).map((_, i) => (
+      {Array.from({ length: 8 }).map((_, i) => (
         <input
           key={i}
           ref={(el) => { inputsRef.current[i] = el; }}
@@ -200,8 +200,8 @@ export default function ForgotPasswordPage() {
   // ── Step 2: verify OTP ────────────────────────────────────────────────────
 
   const onVerifyOtp = async () => {
-    if (otp.length !== 6) {
-      toast({ title: 'Enter all 6 digits', variant: 'destructive' });
+    if (otp.length !== 8) {
+      toast({ title: 'Enter all 8 digits', variant: 'destructive' });
       return;
     }
     setLoading(true);
@@ -264,7 +264,7 @@ export default function ForgotPasswordPage() {
                 <StepIndicator current="email" />
                 <CardTitle className="text-2xl text-center">Forgot your password?</CardTitle>
                 <CardDescription className="text-center">
-                  Enter your email and we&apos;ll send a 6-digit verification code.
+                  Enter your email and we&apos;ll send an 8-digit verification code.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -312,7 +312,7 @@ export default function ForgotPasswordPage() {
                 <StepIndicator current="otp" />
                 <CardTitle className="text-2xl text-center">Enter the code</CardTitle>
                 <CardDescription className="text-center">
-                  We sent a 6-digit code to{' '}
+                  We sent an 8-digit code to{' '}
                   <span className="font-medium text-foreground">{email}</span>
                 </CardDescription>
               </CardHeader>
@@ -322,7 +322,7 @@ export default function ForgotPasswordPage() {
                 <Button
                   className="w-full"
                   onClick={onVerifyOtp}
-                  disabled={loading || otp.length !== 6}
+                  disabled={loading || otp.length !== 8}
                 >
                   {loading ? (
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Verifying...</>
